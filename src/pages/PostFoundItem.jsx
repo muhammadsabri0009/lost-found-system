@@ -39,23 +39,49 @@ function PostFoundItem() {
 
     if (!file) return
 
-    const allowedTypes = ["image/png", "image/jpeg", "image/jpg"]
-    const maxSize = 2 * 1024 * 1024
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/heic",
+      "image/heif",
+    ]
 
-    if (!allowedTypes.includes(file.type)) {
-      setError("Please upload only PNG or JPG image.")
+    const allowedExtensions = [".png", ".jpg", ".jpeg", ".heic", ".heif"]
+    const fileName = file.name.toLowerCase()
+    const fileType = file.type
+    const maxSize = 3 * 1024 * 1024
+
+    const hasAllowedType = allowedTypes.includes(fileType)
+    const hasAllowedExtension = allowedExtensions.some((ext) =>
+      fileName.endsWith(ext)
+    )
+
+    if (!hasAllowedType && !hasAllowedExtension) {
+      setError("Please upload PNG, JPG, JPEG, HEIC, or HEIF image.")
       e.target.value = ""
       return
     }
 
     if (file.size > maxSize) {
-      setError("Image size must be less than 2MB.")
+      setError("Image size must be less than 3MB.")
       e.target.value = ""
       return
     }
 
     setImageFile(file)
-    setImagePreview(URL.createObjectURL(file))
+
+    const canPreview =
+      fileType === "image/png" ||
+      fileType === "image/jpeg" ||
+      fileType === "image/jpg" ||
+      fileName.endsWith(".png") ||
+      fileName.endsWith(".jpg") ||
+      fileName.endsWith(".jpeg")
+
+    if (canPreview) {
+      setImagePreview(URL.createObjectURL(file))
+    }
   }
 
   async function handleSubmit(e) {
@@ -239,25 +265,38 @@ function PostFoundItem() {
                 </label>
                 <input
                   type="file"
-                  accept="image/png,image/jpeg,image/jpg"
+                  accept="image/*,.heic,.heif"
                   onChange={handleImageChange}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Only PNG/JPG allowed. Maximum size: 2MB.
+                  Allowed formats: PNG, JPG, JPEG, HEIC, HEIF. Maximum size: 3MB.
                 </p>
               </div>
 
-              {imagePreview && (
+              {imageFile && (
                 <div className="border border-slate-200 rounded-2xl p-4">
                   <p className="text-sm font-semibold text-gray-700 mb-3">
-                    Image Preview
+                    Selected Image
                   </p>
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full max-h-72 object-cover rounded-xl"
-                  />
+
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full max-h-72 object-cover rounded-xl"
+                    />
+                  ) : (
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-sm text-gray-600">
+                      <p className="font-semibold text-gray-800">
+                        {imageFile.name}
+                      </p>
+                      <p className="mt-1">
+                        Preview is not available for this image format, but it
+                        can still be uploaded.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -294,7 +333,7 @@ function PostFoundItem() {
               <div className="bg-white p-4 rounded-xl border border-green-100">
                 <p className="font-semibold">Upload a clear image</p>
                 <p className="text-gray-500 mt-1">
-                  A clear image helps owners recognize their belongings.
+                  Upload a clear image in PNG, JPG, JPEG, HEIC, or HEIF format.
                 </p>
               </div>
 
