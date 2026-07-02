@@ -15,6 +15,7 @@ import PostLostItem from "./pages/PostLostItem"
 import PostFoundItem from "./pages/PostFoundItem"
 import ItemDetails from "./pages/ItemDetails"
 import MyPosts from "./pages/MyPosts"
+import EditItem from "./pages/EditItem"
 import AdminDashboard from "./pages/AdminDashboard"
 import About from "./pages/About"
 import NotFound from "./pages/NotFound"
@@ -36,8 +37,12 @@ function AppLayout() {
   ]
 
   const isItemDetailsPage = location.pathname.startsWith("/items/")
+  const isEditItemPage = location.pathname.startsWith("/edit-item/")
+
   const isValidRoute =
-    validRoutes.includes(location.pathname) || isItemDetailsPage
+    validRoutes.includes(location.pathname) ||
+    isItemDetailsPage ||
+    isEditItemPage
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
@@ -86,6 +91,15 @@ function AppLayout() {
             element={
               <ProtectedRoute>
                 <MyPosts />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/edit-item/:id"
+            element={
+              <ProtectedRoute>
+                <EditItem />
               </ProtectedRoute>
             }
           />

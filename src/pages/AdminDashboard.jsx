@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import {
   getAllItems,
-  markItemResolved,
+  updateItemStatus,
   deleteItem,
 } from "../services/itemService"
 
@@ -132,7 +132,10 @@ function AdminDashboard() {
   async function fetchItems() {
     try {
       setLoading(true)
+      setError("")
+
       const data = await getAllItems()
+
       setItems(data)
       setFilteredItems(data)
     } catch (err) {
@@ -171,26 +174,49 @@ function AdminDashboard() {
     setFilteredItems(result)
   }, [typeFilter, statusFilter, search, items])
 
-  async function handleResolve(itemId) {
-    const confirmResolve = window.confirm(
-      "Are you sure you want to mark this item as resolved?"
-    )
+  async function handleStatusToggle(item) {
+    const newStatus =
+      item.status === "resolved" ? "active" : "resolved"
 
-    if (!confirmResolve) return
+    const confirmationMessage =
+      newStatus === "resolved"
+        ? "Are you sure you want to mark this item as resolved?"
+        : "Are you sure you want to reopen this item and mark it as active?"
+
+    const confirmed = window.confirm(confirmationMessage)
+
+    if (!confirmed) return
 
     try {
-      await markItemResolved(itemId)
+      setError("")
+      setMessage("")
 
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === itemId ? { ...item, status: "resolved" } : item
+      await updateItemStatus(item.id, newStatus)
+
+      setItems((previousItems) =>
+        previousItems.map((currentItem) =>
+          currentItem.id === item.id
+            ? {
+                ...currentItem,
+                status: newStatus,
+              }
+            : currentItem
         )
       )
 
-      setMessage("Item marked as resolved by admin.")
+      setMessage(
+        newStatus === "resolved"
+          ? "Item marked as resolved by admin."
+          : "Item reopened and marked as active by admin."
+      )
     } catch (err) {
       console.log(err)
-      setError("Failed to mark item as resolved.")
+
+      setError(
+        newStatus === "resolved"
+          ? "Failed to mark item as resolved."
+          : "Failed to reopen the item."
+      )
     }
   }
 
@@ -202,10 +228,13 @@ function AdminDashboard() {
     if (!confirmDelete) return
 
     try {
+      setError("")
+      setMessage("")
+
       await deleteItem(itemId)
 
-      setItems((prevItems) =>
-        prevItems.filter((item) => item.id !== itemId)
+      setItems((previousItems) =>
+        previousItems.filter((item) => item.id !== itemId)
       )
 
       setMessage("Post deleted successfully by admin.")
@@ -222,10 +251,22 @@ function AdminDashboard() {
   }
 
   const totalItems = items.length
-  const lostItems = items.filter((item) => item.type === "lost").length
-  const foundItems = items.filter((item) => item.type === "found").length
-  const activeItems = items.filter((item) => item.status === "active").length
-  const resolvedItems = items.filter((item) => item.status === "resolved").length
+
+  const lostItems = items.filter(
+    (item) => item.type === "lost"
+  ).length
+
+  const foundItems = items.filter(
+    (item) => item.type === "found"
+  ).length
+
+  const activeItems = items.filter(
+    (item) => item.status === "active"
+  ).length
+
+  const resolvedItems = items.filter(
+    (item) => item.status === "resolved"
+  ).length
 
   return (
     <div className="min-h-[80vh] px-4 py-10">
@@ -249,7 +290,10 @@ function AdminDashboard() {
 
             <div className="bg-white/10 border border-white/20 rounded-2xl p-5 min-w-[220px]">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-blue-100 text-sm">Visible Results</p>
+                <p className="text-blue-100 text-sm">
+                  Visible Results
+                </p>
+
                 <ListIcon />
               </div>
 
@@ -266,42 +310,72 @@ function AdminDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-8">
             <div className="bg-white/10 border border-white/20 rounded-2xl p-4">
               <div className="flex items-center justify-between">
-                <p className="text-blue-100 text-sm">Total Posts</p>
+                <p className="text-blue-100 text-sm">
+                  Total Posts
+                </p>
+
                 <TotalIcon />
               </div>
-              <h2 className="text-3xl font-bold mt-2">{totalItems}</h2>
+
+              <h2 className="text-3xl font-bold mt-2">
+                {totalItems}
+              </h2>
             </div>
 
             <div className="bg-white/10 border border-white/20 rounded-2xl p-4">
               <div className="flex items-center justify-between">
-                <p className="text-blue-100 text-sm">Lost Items</p>
+                <p className="text-blue-100 text-sm">
+                  Lost Items
+                </p>
+
                 <LostIcon />
               </div>
-              <h2 className="text-3xl font-bold mt-2">{lostItems}</h2>
+
+              <h2 className="text-3xl font-bold mt-2">
+                {lostItems}
+              </h2>
             </div>
 
             <div className="bg-white/10 border border-white/20 rounded-2xl p-4">
               <div className="flex items-center justify-between">
-                <p className="text-blue-100 text-sm">Found Items</p>
+                <p className="text-blue-100 text-sm">
+                  Found Items
+                </p>
+
                 <FoundIcon />
               </div>
-              <h2 className="text-3xl font-bold mt-2">{foundItems}</h2>
+
+              <h2 className="text-3xl font-bold mt-2">
+                {foundItems}
+              </h2>
             </div>
 
             <div className="bg-white/10 border border-white/20 rounded-2xl p-4">
               <div className="flex items-center justify-between">
-                <p className="text-blue-100 text-sm">Active</p>
+                <p className="text-blue-100 text-sm">
+                  Active
+                </p>
+
                 <ActiveIcon />
               </div>
-              <h2 className="text-3xl font-bold mt-2">{activeItems}</h2>
+
+              <h2 className="text-3xl font-bold mt-2">
+                {activeItems}
+              </h2>
             </div>
 
             <div className="bg-white/10 border border-white/20 rounded-2xl p-4">
               <div className="flex items-center justify-between">
-                <p className="text-blue-100 text-sm">Resolved</p>
+                <p className="text-blue-100 text-sm">
+                  Resolved
+                </p>
+
                 <ResolvedIcon />
               </div>
-              <h2 className="text-3xl font-bold mt-2">{resolvedItems}</h2>
+
+              <h2 className="text-3xl font-bold mt-2">
+                {resolvedItems}
+              </h2>
             </div>
           </div>
         </div>
@@ -319,6 +393,7 @@ function AdminDashboard() {
             </div>
 
             <button
+              type="button"
               onClick={clearFilters}
               className="bg-slate-100 text-gray-700 px-5 py-2 rounded-xl font-semibold hover:bg-slate-200 transition"
             >
@@ -331,6 +406,7 @@ function AdminDashboard() {
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 Search
               </label>
+
               <input
                 type="text"
                 placeholder="Search item, student, email..."
@@ -344,6 +420,7 @@ function AdminDashboard() {
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 Item Type
               </label>
+
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
@@ -359,6 +436,7 @@ function AdminDashboard() {
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 Status
               </label>
+
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -407,6 +485,7 @@ function AdminDashboard() {
             </p>
 
             <button
+              type="button"
               onClick={clearFilters}
               className="mt-5 bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800 transition"
             >
@@ -424,18 +503,23 @@ function AdminDashboard() {
                     <th className="p-4 text-sm font-bold text-gray-700">
                       Item
                     </th>
+
                     <th className="p-4 text-sm font-bold text-gray-700">
                       Type
                     </th>
+
                     <th className="p-4 text-sm font-bold text-gray-700">
                       Status
                     </th>
+
                     <th className="p-4 text-sm font-bold text-gray-700">
                       Location
                     </th>
+
                     <th className="p-4 text-sm font-bold text-gray-700">
                       Posted By
                     </th>
+
                     <th className="p-4 text-sm font-bold text-gray-700">
                       Actions
                     </th>
@@ -468,9 +552,11 @@ function AdminDashboard() {
                             <p className="font-bold text-gray-800 line-clamp-1">
                               {item.title}
                             </p>
+
                             <p className="text-sm text-blue-700 font-medium">
                               {item.category}
                             </p>
+
                             <p className="text-xs text-gray-500 line-clamp-1 mt-1">
                               {item.description}
                             </p>
@@ -498,7 +584,9 @@ function AdminDashboard() {
                               : "bg-gray-200 text-gray-700"
                           }`}
                         >
-                          {item.status === "active" ? "Active" : "Resolved"}
+                          {item.status === "active"
+                            ? "Active"
+                            : "Resolved"}
                         </span>
                       </td>
 
@@ -510,6 +598,7 @@ function AdminDashboard() {
                         <p className="text-gray-800 font-semibold">
                           {item.postedByName}
                         </p>
+
                         <p className="text-sm text-gray-500">
                           {item.postedByEmail}
                         </p>
@@ -524,16 +613,22 @@ function AdminDashboard() {
                             View
                           </Link>
 
-                          {item.status === "active" && (
-                            <button
-                              onClick={() => handleResolve(item.id)}
-                              className="bg-green-600 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-green-700 transition"
-                            >
-                              Resolve
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleStatusToggle(item)}
+                            className={`px-4 py-2 rounded-xl text-xs font-semibold text-white transition ${
+                              item.status === "resolved"
+                                ? "bg-indigo-600 hover:bg-indigo-700"
+                                : "bg-green-600 hover:bg-green-700"
+                            }`}
+                          >
+                            {item.status === "resolved"
+                              ? "Reopen"
+                              : "Resolve"}
+                          </button>
 
                           <button
+                            type="button"
                             onClick={() => handleDelete(item.id)}
                             className="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-red-700 transition"
                           >

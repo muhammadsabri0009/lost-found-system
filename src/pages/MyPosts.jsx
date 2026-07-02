@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import {
   getItemsByUser,
-  markItemResolved,
+  updateItemStatus,
   deleteItem,
 } from "../services/itemService"
 
@@ -18,6 +18,8 @@ function MyPosts() {
   async function fetchMyPosts() {
     try {
       setLoading(true)
+      setError("")
+
       const data = await getItemsByUser(currentUser.uid)
       setItems(data)
     } catch (err) {
@@ -34,41 +36,67 @@ function MyPosts() {
     }
   }, [currentUser])
 
-  async function handleResolve(itemId) {
-    const confirmResolve = window.confirm(
-      "Are you sure you want to mark this item as resolved?"
-    )
+  async function handleStatusToggle(item) {
+    const newStatus =
+      item.status === "resolved" ? "active" : "resolved"
 
-    if (!confirmResolve) return
+    const confirmationMessage =
+      newStatus === "resolved"
+        ? "Are you sure you want to mark this item as resolved?"
+        : "Are you sure you want to reopen this item?"
+
+    const confirmed = window.confirm(confirmationMessage)
+
+    if (!confirmed) return
 
     try {
-      await markItemResolved(itemId)
+      setError("")
+      setMessage("")
 
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === itemId ? { ...item, status: "resolved" } : item
+      await updateItemStatus(item.id, newStatus)
+
+      setItems((previousItems) =>
+        previousItems.map((currentItem) =>
+          currentItem.id === item.id
+            ? {
+                ...currentItem,
+                status: newStatus,
+              }
+            : currentItem
         )
       )
 
-      setMessage("Item marked as resolved.")
+      setMessage(
+        newStatus === "resolved"
+          ? "Item marked as resolved successfully."
+          : "Item reopened and marked as active."
+      )
     } catch (err) {
       console.log(err)
-      setError("Failed to mark item as resolved.")
+
+      setError(
+        newStatus === "resolved"
+          ? "Failed to mark item as resolved."
+          : "Failed to reopen the item."
+      )
     }
   }
 
   async function handleDelete(itemId) {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this post?"
+      "Are you sure you want to permanently delete this post?"
     )
 
     if (!confirmDelete) return
 
     try {
+      setError("")
+      setMessage("")
+
       await deleteItem(itemId)
 
-      setItems((prevItems) =>
-        prevItems.filter((item) => item.id !== itemId)
+      setItems((previousItems) =>
+        previousItems.filter((item) => item.id !== itemId)
       )
 
       setMessage("Post deleted successfully.")
@@ -79,8 +107,14 @@ function MyPosts() {
   }
 
   const totalPosts = items.length
-  const activePosts = items.filter((item) => item.status === "active").length
-  const resolvedPosts = items.filter((item) => item.status === "resolved").length
+
+  const activePosts = items.filter(
+    (item) => item.status === "active"
+  ).length
+
+  const resolvedPosts = items.filter(
+    (item) => item.status === "resolved"
+  ).length
 
   return (
     <div className="min-h-[80vh] px-4 py-10">
@@ -88,10 +122,13 @@ function MyPosts() {
         <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white rounded-3xl shadow-lg p-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold">My Posts</h1>
+              <h1 className="text-3xl md:text-4xl font-bold">
+                My Posts
+              </h1>
+
               <p className="text-blue-100 mt-3 max-w-2xl">
-                View, manage, resolve, or delete the lost and found items you
-                have posted.
+                View, edit, manage, resolve, reopen, or delete the lost and
+                found items you have posted.
               </p>
             </div>
 
@@ -144,16 +181,20 @@ function MyPosts() {
 
         {loading && (
           <div className="bg-white rounded-3xl shadow p-10 text-center mt-8">
-            <p className="text-gray-600 text-lg">Loading your posts...</p>
+            <p className="text-gray-600 text-lg">
+              Loading your posts...
+            </p>
           </div>
         )}
 
         {!loading && items.length === 0 && (
           <div className="bg-white rounded-3xl shadow p-10 text-center mt-8 border border-slate-100">
             <div className="text-5xl">📭</div>
+
             <h2 className="text-2xl font-bold text-gray-800 mt-4">
               No posts yet
             </h2>
+
             <p className="text-gray-500 mt-2">
               You have not posted any lost or found item yet.
             </p>
@@ -215,7 +256,9 @@ function MyPosts() {
                             : "bg-gray-200 text-gray-700"
                         }`}
                       >
-                        {item.status === "active" ? "Active" : "Resolved"}
+                        {item.status === "active"
+                          ? "Active"
+                          : "Resolved"}
                       </span>
                     </div>
                   </div>
@@ -235,14 +278,20 @@ function MyPosts() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
                       <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                        <p className="text-sm text-gray-500">Location</p>
+                        <p className="text-sm text-gray-500">
+                          Location
+                        </p>
+
                         <p className="font-semibold text-gray-700 line-clamp-1">
                           {item.location}
                         </p>
                       </div>
 
                       <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                        <p className="text-sm text-gray-500">Date</p>
+                        <p className="text-sm text-gray-500">
+                          Date
+                        </p>
+
                         <p className="font-semibold text-gray-700">
                           {item.date}
                         </p>
@@ -257,16 +306,29 @@ function MyPosts() {
                         View Details
                       </Link>
 
-                      {item.status === "active" && (
-                        <button
-                          onClick={() => handleResolve(item.id)}
-                          className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-green-700 transition"
-                        >
-                          Mark Resolved
-                        </button>
-                      )}
+                      <Link
+                        to={`/edit-item/${item.id}`}
+                        className="bg-amber-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-600 transition"
+                      >
+                        Edit Post
+                      </Link>
 
                       <button
+                        type="button"
+                        onClick={() => handleStatusToggle(item)}
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold text-white transition ${
+                          item.status === "resolved"
+                            ? "bg-indigo-600 hover:bg-indigo-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                      >
+                        {item.status === "resolved"
+                          ? "Reopen Item"
+                          : "Mark Resolved"}
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={() => handleDelete(item.id)}
                         className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-red-700 transition"
                       >
