@@ -15,7 +15,7 @@ function Login() {
   const cleanEmail = email.toLowerCase().trim()
 
   const isEmailValid =
-    /^[a-zA-Z0-9]+@gmail\.com$/.test(cleanEmail) &&
+    /^[a-zA-Z0-9._%+-]+@umt\.skt\.edu\.pk$/.test(cleanEmail) &&
     !cleanEmail.includes(" ")
 
   const isPasswordValid =
@@ -47,7 +47,7 @@ function Login() {
     }
 
     if (message.includes("invalid-email")) {
-      return "Please enter a valid Gmail address."
+      return "Please enter a valid UMT Sialkot email address."
     }
 
     return "Login failed. Please try again."
@@ -58,7 +58,7 @@ function Login() {
     setError("")
 
     if (!isFormValid) {
-      setError("Please enter a valid Gmail address and password.")
+      setError("Please enter a valid UMT Sialkot email address and password.")
       return
     }
 
@@ -129,7 +129,7 @@ function Login() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-5">
             <div>
               <label className="block text-gray-700 font-medium mb-1">
-                Gmail Address
+                University Email Address
               </label>
 
               <input
@@ -142,19 +142,19 @@ function Login() {
                     ? "border-red-300 focus:ring-red-400"
                     : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 }`}
-                placeholder="example@gmail.com"
+                placeholder="example@umt.skt.edu.pk"
               />
 
               {email.length > 0 && !isEmailValid && (
-                <p className="text-xs text-red-600 mt-1">
-                  Email must be Gmail only, like student123@gmail.com. Use only
-                  letters or numbers before @gmail.com.
-                </p>
-              )}
+  <p className="text-xs text-red-600 mt-1">
+    Please use your official university email ending with
+    @umt.skt.edu.pk.
+  </p>
+)}
 
               {isEmailValid && (
                 <p className="text-xs text-green-600 mt-1">
-                  ✓ Gmail address is valid.
+                  ✓ University email address is valid.
                 </p>
               )}
             </div>
@@ -203,7 +203,7 @@ function Login() {
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
               <p className="font-semibold">Login Rules</p>
               <ul className="list-disc ml-5 mt-2 space-y-1">
-                <li>Email must be a Gmail address.</li>
+                <li>Email must be a valid UMT Sialkot email address.</li>
                 <li>Password must be at least 8 characters.</li>
                 <li>No spaces are allowed in email or password.</li>
               </ul>

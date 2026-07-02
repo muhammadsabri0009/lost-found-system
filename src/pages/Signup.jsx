@@ -22,8 +22,8 @@ function Signup() {
     cleanName.length >= 3 && /^[A-Za-z ]+$/.test(cleanName)
 
   const isEmailValid =
-    /^[a-zA-Z0-9]+@gmail\.com$/.test(cleanEmail) &&
-    !cleanEmail.includes(" ")
+  /^[a-zA-Z0-9._%+-]+@umt\.skt\.edu\.pk$/.test(cleanEmail) &&
+  !cleanEmail.includes(" ")
 
   const isPasswordValid =
     password.length >= 8 &&
@@ -58,7 +58,7 @@ function Signup() {
     }
 
     if (message.includes("invalid-email")) {
-      return "Please enter a valid Gmail address."
+      return "Please enter a valid UMT Sialkot email address."
     }
 
     if (message.includes("weak-password")) {
@@ -140,7 +140,7 @@ function Signup() {
 
             <div>
               <label className="block text-gray-700 font-medium mb-1">
-                Gmail Address
+                University Email Address
               </label>
               <input
                 type="email"
@@ -152,19 +152,19 @@ function Signup() {
                     ? "border-red-300 focus:ring-red-400"
                     : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 }`}
-                placeholder="example@gmail.com"
+                placeholder="student@umt.skt.edu.pk"
               />
 
               {email.length > 0 && !isEmailValid && (
-                <p className="text-xs text-red-600 mt-1">
-                  Email must be Gmail only, like student123@gmail.com. Use only
-                  letters or numbers before @gmail.com.
-                </p>
-              )}
+  <p className="text-xs text-red-600 mt-1">
+    Please use your official university email ending with
+    @umt.skt.edu.pk.
+  </p>
+)}
 
               {isEmailValid && (
                 <p className="text-xs text-green-600 mt-1">
-                  ✓ Gmail address is valid.
+                  ✓ University email address is valid.
                 </p>
               )}
             </div>
@@ -258,7 +258,7 @@ function Signup() {
               <p className="font-semibold">Account Rules</p>
               <ul className="list-disc ml-5 mt-2 space-y-1">
                 <li>Name must contain only letters.</li>
-                <li>Email must be a Gmail address.</li>
+                <li>Email must end with @umt.skt.edu.pk.</li>
                 <li>Password must be 8+ characters with a letter and number.</li>
               </ul>
             </div>
