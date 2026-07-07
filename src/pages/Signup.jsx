@@ -22,7 +22,7 @@ function Signup() {
     cleanName.length >= 3 && /^[A-Za-z ]+$/.test(cleanName)
 
   const isEmailValid =
-  /^[a-zA-Z0-9._%+-]+@umt\.skt\.edu\.pk$/.test(cleanEmail) &&
+  /^[a-zA-Z0-9._%+-]+@skt\.umt\.edu\.pk$/.test(cleanEmail) &&
   !cleanEmail.includes(" ")
 
   const isPasswordValid =

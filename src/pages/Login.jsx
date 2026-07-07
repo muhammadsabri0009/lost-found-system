@@ -15,7 +15,7 @@ function Login() {
   const cleanEmail = email.toLowerCase().trim()
 
   const isEmailValid =
-    /^[a-zA-Z0-9._%+-]+@umt\.skt\.edu\.pk$/.test(cleanEmail) &&
+    /^[a-zA-Z0-9._%+-]+@skt\.umt\.edu\.pk$/.test(cleanEmail) &&
     !cleanEmail.includes(" ")
 
   const isPasswordValid =
