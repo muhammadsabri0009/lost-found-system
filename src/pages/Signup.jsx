@@ -152,13 +152,13 @@ function Signup() {
                     ? "border-red-300 focus:ring-red-400"
                     : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 }`}
-                placeholder="student@umt.skt.edu.pk"
+                placeholder="student@skt.umt.edu.pk"
               />
 
               {email.length > 0 && !isEmailValid && (
   <p className="text-xs text-red-600 mt-1">
     Please use your official university email ending with
-    @umt.skt.edu.pk.
+    @skt.umt.edu.pk
   </p>
 )}
 
@@ -258,7 +258,7 @@ function Signup() {
               <p className="font-semibold">Account Rules</p>
               <ul className="list-disc ml-5 mt-2 space-y-1">
                 <li>Name must contain only letters.</li>
-                <li>Email must end with @umt.skt.edu.pk.</li>
+                <li>Email must end with @skt.umt.edu.pk.</li>
                 <li>Password must be 8+ characters with a letter and number.</li>
               </ul>
             </div>

@@ -142,13 +142,13 @@ function Login() {
                     ? "border-red-300 focus:ring-red-400"
                     : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 }`}
-                placeholder="example@umt.skt.edu.pk"
+                placeholder="example@skt.umt.edu.pk"
               />
 
               {email.length > 0 && !isEmailValid && (
   <p className="text-xs text-red-600 mt-1">
     Please use your official university email ending with
-    @umt.skt.edu.pk.
+    @skt.umt.edu.pk
   </p>
 )}
 
